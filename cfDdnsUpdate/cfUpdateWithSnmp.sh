@@ -1,6 +1,6 @@
 #!/bin/bash
 set -o errexit
-set -o xtrace # DEBUG 
+# set -o xtrace # DEBUG ONLY, Use in production will LEAK API KEY!!
 set -o nounset
 
 cfLogin=""
