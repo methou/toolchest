@@ -11,7 +11,6 @@ cfRecordNames=""
 mkHostIp=""
 mkSnmpCommunity=""
 mkSnmpIfId=""
-mkIfId=""
 
 TEMP_DIR=$(mktemp -d) # create a temp only us can rw from/to
 ETC_FOLDER="${HOME}/etc"
