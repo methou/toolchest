@@ -68,7 +68,7 @@ function cfPushRecord
         -H "Content-Type: application/json" \
         -H "X-Auth-Email: ${cfLogin}" \
         -d "{\"type\":\"A\",\"name\":\"$recName\",\"content\":\"$recVal\",\"proxied\":false,\"ttl\":120}" \
-        -o $TEMP_DIR/result.json 
+        -o $TEMP_DIR/result.json
 
 }
 function cleanUp
@@ -77,16 +77,30 @@ function cleanUp
 }
 
 # int main(){ ... }
-# compare first IP
-sampleIpAddr=$(snmpGetIP ${mkHostIp} ${mkSnmpCommunity} ${mkSnmpIfId[0]})
-if [ -e $STATUS_FILE ] && [[ $(head -1 $STATUS_FILE) == ${sampleIpAddr} ]]; then
-    echo "no need to update"
-    exit 0
-else
-    # create and empty file or empty an file
+NUM_CHG=0
+if ! [ -e $STATUS_FILE ]; then
     truncate -s 0 $STATUS_FILE
+    for i in $(seq ${#cfRecordNames[*]}); do
+    echo "unset" >> $STATUS_FILE
+    done
 fi
-
+# compare first IP
+for i in $(seq ${#cfRecordNames[*]}); do
+    sampleIpAddr=$(snmpGetIP ${mkHostIp} ${mkSnmpCommunity} ${mkSnmpIfId[$i-1]})
+    recordIpAddr=$(sed "${i}q;d" $STATUS_FILE)
+    # echo -e "${mkSnmpIfId[i-1]}:\t rec:${recordIpAddr}\tsampled:${sampleIpAddr}"
+    if [[ ${sampleIpAddr} == ${recordIpAddr} ]]; then
+        echo -e "(${cfRecordNames[i-1]}: NOCHG, no need to update)"
+    else
+    NUM_CHG+=1
+    fi
+done
+if [ ${NUM_CHG} -le ${#cfRecordNames[*]} ]; then
+    echo "(All NOCHG: no need to update at all)"
+    exit 0
+fi
+echo "Mismatch found, updating..."
+truncate -s 0 $STATUS_FILE
 cfGetZone
 zoneId=$(cfGetZoneId ${cfDomain})
 cfGetRecords ${zoneId}
