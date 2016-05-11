@@ -5,6 +5,15 @@ This folder contains a collection of script I wrote for implementing dynamic dns
 ##  cfUpdateWithSnmp.sh
 ... is a bash script work with SNMP, it gets IP addresses from an SNMP server and pushes records to CloudFlare server
 
+## Prerequisites
+
+SNMP - for obvious reasons;
+snmp-mibs-downloader - mibs files doesn't come with SNMP by default;
+jq - json parser;
+
+On debian/alike: `sudo aptitude install snmp snmp-mibs-downloader jq` then `sudo download-mibs`
+you should be fine.
+
 ### Usage
 First please 
 `chmod 700 cfUpdateWithSnmp.sh`
